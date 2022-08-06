@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const security = require('../../Utilities/Security');
 
-const { newAccount } = require('./Scripts/handleAccounts');
+require('dotenv').config();
+
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+
+const accounts = require('./Scripts/handleAccounts');
 
 // Create a new POST endpoint with the path 'new-account'
-router.post('new-account', (req, res) => {
+router.post('/new-account', (req, res) => {
+    const db = req.app.get('db');
 
     // Define data as req.body for readability
     const data = req.body;
@@ -13,16 +19,38 @@ router.post('new-account', (req, res) => {
     const account = {
         "name": data?.name,
         "companyName": data?.companyName,
-        "email": data?.email,
+        "email": data?.email.toLowerCase(),
         "password": data?.password,
-        "companyCategory": data?.companyCategory
+        "companyCategory": data?.companyCategory,
+        "accountLevel": 1
     }
 
     // Pass the data to the new account function to be handled
     // Return a HTTP status depending on whether or not the request was handled successfully
-    newAccount(account)
-        .then(() => res.sendStatus(200))
+    accounts.newAccount(account, db)
+        .then(() => res.send("Account added."))
         .catch(e => res.status(400).send(e))
+})
+
+router.get('/test-get-all/:db', (req, res) => {
+    const db = req.app.get('db');
+    const target = req.params.db;
+    db.all(`SELECT * FROM ${target}`, (err, results) => {
+        if(err){
+            res.send(err);
+        } else {
+            res.send(results)
+        }
+    })
+})
+
+router.post('/set-account-as-salesperson', security.validateAdmin, (req, res) => {
+    const db = req.app.get('db');
+    const salespersonData = req.body;
+
+    accounts.convertUserAccountToSalesperson(salespersonData, db)
+        .then(() => res.send('Account converted to salesperson.'))
+        .catch(e => res.send(e))
 })
 
 module.exports = router;
