@@ -15,7 +15,7 @@ const getUserID = (email, db) => {
 
 const addSalesperson = (userID, specialty, db) => {
     return new Promise(async (resolve, reject) => {
-        db.run('INSERT INTO Salespeople(userID, specialtyCompanyCategory) VALUES(?, ?)', [userID, specialty], err => {
+        db.run('INSERT INTO Salespeople(salespersonID, specialtyCompanyCategory) VALUES(?, ?)', [userID, specialty], err => {
             if(err){
                 console.log(err);
                 reject(err);

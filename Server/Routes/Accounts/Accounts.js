@@ -2,10 +2,6 @@ const express = require('express');
 const router = express.Router();
 const security = require('../../Utilities/Security');
 
-require('dotenv').config();
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
 const accounts = require('./Scripts/handleAccounts');
 
 // Create a new POST endpoint with the path 'new-account'

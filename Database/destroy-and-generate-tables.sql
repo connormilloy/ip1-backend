@@ -34,10 +34,9 @@ CREATE TABLE Users(
 .print ""
 
 CREATE TABLE Salespeople(
-	salespersonID INTEGER PRIMARY KEY AUTOINCREMENT,
-	userID INTEGER,
+	salespersonID INTEGER PRIMARY KEY,
 	specialtyCompanyCategory TEXT,
-	FOREIGN KEY (userID) REFERENCES Users(userID)
+	FOREIGN KEY (salespersonID) REFERENCES Users(userID)
 );
 
 .print "Creating 'Appointments' table..."
