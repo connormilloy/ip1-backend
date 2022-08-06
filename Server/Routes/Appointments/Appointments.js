@@ -4,7 +4,7 @@ const security = require('../../Utilities/Security');
 
 const appointments = require('./Scripts/handleAppointments');
 
-router.post('/create-new-appointment', (req, res) => {
+router.post('/create-new-appointment', [security.validateSessionToken, security.extendToken], (req, res) => {
     const db = req.app.get('db');
     const appointmentData = req.body;
 

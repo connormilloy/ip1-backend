@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const moment = require('moment-timezone');
 
 const generateToken = () => {
     const charSet = "ABCDEFGHIJKLMOPQRSTUVWXYZ0123456789";
@@ -9,6 +10,26 @@ const generateToken = () => {
     }
 
     return token;
+}
+
+const addLoginTokenToUser = (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        const token = generateToken();
+        const tokenExpiry = moment().add(30, 'minutes');
+    
+        db.serialize(() => {
+            db.run('INSERT OR IGNORE INTO LoginTokens(userID, token, tokenExpiryDateTime) VALUES(?, ?, ?)', [userID, token, tokenExpiry], err => {
+                if(err) reject(err);
+            });
+            db.run('UPDATE LoginTokens SET token = ?, tokenExpiryDateTime = ? WHERE userID = ?', [token, tokenExpiry, userID], err => {
+                if(err){
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            })
+        })
+    })
 }
 
 const comparePasswordHashes = (dbPassword, loginPassword) => {
@@ -46,7 +67,9 @@ const validateLogin = (loginInfo, db) => {
                 comparePasswordHashes(account.password, loginInfo.password)
                     .then(valid => {
                         if(valid){
-                            resolve(true)
+                            addLoginTokenToUser(account.userID, db)
+                                .then(() => resolve())
+                                .catch(e => reject(e))
                         } else {
                             resolve(false);
                         }

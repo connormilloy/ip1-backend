@@ -22,8 +22,8 @@ const getAllAppointmentsForSalesperson = (salespersonID, db) => {
         `
             SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment FROM Appointments
             INNER JOIN Users a on a.userID = Appointments.userID
-            INNER JOIN Users b on b.userID = Appointments.userID
-            WHERE salespersonID = ?
+            INNER JOIN Users b on b.userID = Appointments.salespersonID
+            WHERE Appointments.salespersonID = ?
         `
 
         db.all(query, [salespersonID], (err, result) => {
@@ -42,7 +42,7 @@ const getAllAppointmentsForUser = (userID, db) => {
         `
             SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment FROM Appointments
             INNER JOIN Users a on a.userID = Appointments.userID
-            INNER JOIN Users b on b.userID = Appointments.userID
+            INNER JOIN Users b on b.userID = Appointments.salespersonID
             WHERE Appointments.userID = ?
         `
 

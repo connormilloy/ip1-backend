@@ -58,7 +58,7 @@ CREATE TABLE Appointments(
 
 CREATE TABLE LoginTokens(
 	tokenID INTEGER PRIMARY KEY AUTOINCREMENT,
-	userID INTEGER,
+	userID INTEGER UNIQUE,
 	token TEXT,
 	tokenExpiryDateTime TEXT,
 	FOREIGN KEY (userID) REFERENCES Users(userID)
