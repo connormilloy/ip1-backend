@@ -3,6 +3,7 @@ const router = express.Router();
 const security = require('../../Utilities/Security');
 
 const appointments = require('./Scripts/handleAppointments');
+const salespeople = require('./Scripts/handleSalespeople');
 
 router.post('/create-new-appointment', [security.validateSessionToken, security.extendToken], (req, res) => {
     const db = req.app.get('db');
@@ -26,6 +27,16 @@ router.get('/get-appointments-for-user/:userID', (req, res) => {
 
     appointments.getAllAppointmentsForUser(req.params.userID, db)
         .then(response => res.send(response))
+        .catch(e => res.send(e))
+})
+
+router.get('/get-salespeople-by-specialty/:specialty', (req, res) => {
+    const db = req.app.get('db');
+
+    salespeople.getSalespeopleBySpecialty(req.params.specialty, db)
+        .then(result => {
+            res.send(result)
+        })
         .catch(e => res.send(e))
 })
 
