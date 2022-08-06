@@ -3,6 +3,7 @@ const router = express.Router();
 const security = require('../../Utilities/Security');
 
 const accounts = require('./Scripts/handleAccounts');
+const logins = require('./Scripts/handleLogins');
 
 // Create a new POST endpoint with the path 'new-account'
 router.post('/new-account', (req, res) => {
@@ -46,6 +47,15 @@ router.post('/set-account-as-salesperson', security.validateAdmin, (req, res) =>
 
     accounts.convertUserAccountToSalesperson(salespersonData, db)
         .then(() => res.send('Account converted to salesperson.'))
+        .catch(e => res.send(e))
+})
+
+router.post('/login', (req, res) => {
+    const db = req.app.get('db');
+    const loginInfo = req.body;
+
+    logins.validateLogin(loginInfo, db)
+        .then(valid => res.send(valid))
         .catch(e => res.send(e))
 })
 
