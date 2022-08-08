@@ -25,7 +25,7 @@ const addLoginTokenToUser = (userID, db) => {
                 if(err){
                     reject(err);
                 } else {
-                    resolve();
+                    resolve(token);
                 }
             })
         })
@@ -68,15 +68,21 @@ const validateLogin = (loginInfo, db) => {
                     .then(valid => {
                         if(valid){
                             addLoginTokenToUser(account.userID, db)
-                                .then(() => resolve())
+                                .then((token) => resolve({
+                                    "valid": true,
+                                    "token": token,
+                                    "userID": account.userID
+                                }))
                                 .catch(e => reject(e))
                         } else {
-                            resolve(false);
+                            resolve({
+                                "valid": false
+                            });
                         }
                     })
                     .catch(e => reject(e))
             })
-            .catch(e => reject(e))
+            .catch(e => reject('no account'))
     })
 }
 

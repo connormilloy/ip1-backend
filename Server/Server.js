@@ -21,6 +21,6 @@ app.set('db', new sqlite3.Database('../Database/AppointmentSystem.db', err => {
     if(err) { console.log('Error connecting to DB!') } else { console.log('Connected to DB!') };
 }))
 
-app.listen(3000, () => {
+app.listen(4000, () => {
     console.log('Server live!');
 })

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const security = require('../../Utilities/Security');
 
+const { validateSessionToken } = require('../../Utilities/validateSessionToken');
+
 const accounts = require('./Scripts/handleAccounts');
 const logins = require('./Scripts/handleLogins');
 
@@ -55,8 +57,21 @@ router.post('/login', (req, res) => {
     const loginInfo = req.body;
 
     logins.validateLogin(loginInfo, db)
-        .then(valid => res.send(valid))
-        .catch(e => res.send(e))
+        .then(loginValid => res.send(loginValid))
+        .catch(e => {
+            if(e === 'no account') {
+                res.send('NOACCOUNT');
+            }
+        })
+})
+
+router.post('/validate-session', (req, res) => {
+    const db = req.app.get('db');
+    const sessionInfo = req.body;
+
+    validateSessionToken(sessionInfo.email, sessionInfo.token, db)
+        .then(isValid => res.send(isValid))
+        .catch(e => console.log(e))
 })
 
 module.exports = router;
