@@ -1,4 +1,5 @@
 const moment = require('moment-timezone');
+const { getUserAccountLevel } = require('../../Accounts/Scripts/handleAccounts');
 
 const createNewAppointment = (appointmentData, db) => {
     return new Promise(async (resolve, reject) => {

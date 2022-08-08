@@ -8,7 +8,7 @@ const getSalespeopleBySpecialty = (specialty, db) => {
             if(err){
                 reject(err);
             } else {
-                resolve(result[0]);
+                resolve(result);
             }
         })
     })

@@ -83,7 +83,7 @@ const newAccount = async (account, db) => {
                         console.log(err);
                         reject(err);
                     } else {
-                        resolve(err);
+                        resolve();
                     }
                 })
             })
@@ -91,5 +91,33 @@ const newAccount = async (account, db) => {
     })
 }
 
+const getUserAccountLevel = async (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        db.all("SELECT accountLevel FROM Users WHERE userID = ?", [userID], (err, result) => {
+            if(err){
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result[0]);
+            }
+        })
+    })
+}
+
+const getUserAccountCategory = (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        db.all("SELECT companyCategory FROM Users WHERE userID = ?", [userID], (err, result) => {
+            if(err){
+                console.log(err);
+                reject(err);
+            } else {
+                resolve(result[0]);
+            }
+        })
+    })
+}
+
 exports.newAccount = newAccount;
 exports.convertUserAccountToSalesperson = convertUserAccountToSalesperson;
+exports.getUserAccountLevel = getUserAccountLevel;
+exports.getUserAccountCategory = getUserAccountCategory;

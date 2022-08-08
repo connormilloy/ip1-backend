@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const moment = require('moment-timezone');
 
+const { getUserAccountLevel } = require('./handleAccounts');
+
 const generateToken = () => {
     const charSet = "ABCDEFGHIJKLMOPQRSTUVWXYZ0123456789";
     let token = "";
@@ -67,12 +69,18 @@ const validateLogin = (loginInfo, db) => {
                 comparePasswordHashes(account.password, loginInfo.password)
                     .then(valid => {
                         if(valid){
-                            addLoginTokenToUser(account.userID, db)
-                                .then((token) => resolve({
-                                    "valid": true,
-                                    "token": token,
-                                    "userID": account.userID
-                                }))
+                            getUserAccountLevel(account.userID, db)
+                                .then(res => {
+                                    const accountLevel = res.accountLevel;
+                                    addLoginTokenToUser(account.userID, db)
+                                        .then((token) => resolve({
+                                            "valid": true,
+                                            "token": token,
+                                            "userID": account.userID,
+                                            "accountLevel": accountLevel
+                                        }))
+                                    .catch(e => reject(e))
+                                })
                                 .catch(e => reject(e))
                         } else {
                             resolve({

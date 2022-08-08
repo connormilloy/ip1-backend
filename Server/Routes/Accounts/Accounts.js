@@ -74,4 +74,14 @@ router.post('/validate-session', (req, res) => {
         .catch(e => console.log(e))
 })
 
+router.get('/get-user-category/:userID', security.validateSessionToken, (req, res) => {
+    const db = req.app.get('db');
+    
+    accounts.getUserAccountCategory(req.params.userID, db)
+        .then(account => {
+            res.send(account?.companyCategory);
+        })
+        .catch(e => res.send(e))
+})
+
 module.exports = router;
