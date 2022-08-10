@@ -22,11 +22,13 @@ DROP TABLE IF EXISTS LoginTokens;
 CREATE TABLE Users(
 	userID INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT,
-	email TEXT,
+	email TEXT UNIQUE,
 	password TEXT,
 	accountLevel INTEGER,
 	companyName TEXT,
-	companyCategory TEXT
+	companyCategory TEXT,
+	loginAttempts INTEGER,
+	accountLocked TEXT
 );
 
 .print "Creating 'Salespeople' table..."

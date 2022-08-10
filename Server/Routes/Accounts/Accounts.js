@@ -27,23 +27,11 @@ router.post('/new-account', (req, res) => {
     // Pass the data to the new account function to be handled
     // Return a HTTP status depending on whether or not the request was handled successfully
     accounts.newAccount(account, db)
-        .then(() => res.send("Account added."))
-        .catch(e => res.status(400).send(e))
+        .then(() => res.send({"success": true, message: "Successfully created account! You may now log in."}))
+        .catch(e => res.send({"success": false, message: "Failed to create account. This email address may already be in use."}))
 })
 
-router.get('/test-get-all/:db', (req, res) => {
-    const db = req.app.get('db');
-    const target = req.params.db;
-    db.all(`SELECT * FROM ${target}`, (err, results) => {
-        if(err){
-            res.send(err);
-        } else {
-            res.send(results)
-        }
-    })
-})
-
-router.post('/set-account-as-salesperson', security.validateAdmin, (req, res) => {
+router.post('/set-account-as-salesperson', [security.validateAdmin], (req, res) => {
     const db = req.app.get('db');
     const salespersonData = req.body;
 
@@ -57,7 +45,13 @@ router.post('/login', (req, res) => {
     const loginInfo = req.body;
 
     logins.validateLogin(loginInfo, db)
-        .then(loginValid => res.send(loginValid))
+        .then(login => {
+            if(login === "Account Locked"){
+                res.send('ACCOUNTLOCKED');
+            } else {
+                res.send(login);
+            }
+        })
         .catch(e => {
             if(e === 'no account') {
                 res.send('NOACCOUNT');
@@ -74,7 +68,7 @@ router.post('/validate-session', (req, res) => {
         .catch(e => console.log(e))
 })
 
-router.get('/get-user-category/:userID', security.validateSessionToken, (req, res) => {
+router.get('/get-user-category/:userID', [security.validateSessionToken, security.extendToken], (req, res) => {
     const db = req.app.get('db');
     
     accounts.getUserAccountCategory(req.params.userID, db)

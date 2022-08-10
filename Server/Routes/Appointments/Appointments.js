@@ -11,20 +11,12 @@ router.post('/create-new-appointment', [security.validateSessionToken, security.
     const db = req.app.get('db');
     const appointmentData = req.body;
 
-    console.log(appointmentData)
-
     appointments.createNewAppointment(appointmentData, db)
         .then(() => res.send('Created new appointment.'))
         .catch(e => res.send(e))
 })
 
-router.get('/get-appointments-for-salesperson/:salespersonID', (req, res) => {
-    const db = req.app.get('db');
-
-
-})
-
-router.get('/get-appointments/:userID', security.validateSessionToken, (req, res) => {
+router.get('/get-appointments/:userID', [security.validateSessionToken, security.extendToken], (req, res) => {
     const db = req.app.get('db');
 
     getUserAccountLevel(req.params.userID, db)
@@ -51,7 +43,7 @@ router.get('/get-appointments/:userID', security.validateSessionToken, (req, res
 
 })
 
-router.get('/get-salespeople-by-specialty/:specialty', security.validateSessionToken, (req, res) => {
+router.get('/get-salespeople-by-specialty/:specialty', [security.validateSessionToken, security.extendToken], (req, res) => {
     const db = req.app.get('db');
 
     salespeople.getSalespeopleBySpecialty(req.params.specialty, db)
@@ -60,6 +52,15 @@ router.get('/get-salespeople-by-specialty/:specialty', security.validateSessionT
             res.send(result)
         })
         .catch(e => res.send(e))
+})
+
+router.post('/cancel-appointment', [security.validateSessionToken, security.extendToken], (req, res) => {
+    const db = req.app.get('db');
+    const appointmentID = req.body?.appointmentID;
+
+    appointments.cancelAppointment(appointmentID, db)
+        .then(() => res.send('Appointment cancelled successfully.'))
+        .catch(e => res.send('Error cancelling appointment.'))
 })
 
 module.exports = router;

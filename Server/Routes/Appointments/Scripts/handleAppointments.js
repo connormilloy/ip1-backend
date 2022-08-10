@@ -35,7 +35,7 @@ const getAllAppointmentsForSalesperson = (salespersonID, db) => {
     return new Promise(async (resolve, reject) => {
         const query = 
         `
-            SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment FROM Appointments
+            SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment, appointmentID AS ID FROM Appointments
             INNER JOIN Users a on a.userID = Appointments.userID
             INNER JOIN Users b on b.userID = Appointments.salespersonID
             WHERE Appointments.salespersonID = ?
@@ -55,7 +55,7 @@ const getAllAppointmentsForUser = (userID, db) => {
     return new Promise(async (resolve, reject) => {
         const query = 
         `
-            SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment FROM Appointments
+            SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment, appointmentID AS ID FROM Appointments
             INNER JOIN Users a on a.userID = Appointments.userID
             INNER JOIN Users b on b.userID = Appointments.salespersonID
             WHERE Appointments.userID = ?
@@ -71,7 +71,20 @@ const getAllAppointmentsForUser = (userID, db) => {
     })
 }
 
+const cancelAppointment = (appointmentID, db) => {
+    return new Promise(async (resolve, reject) => {
+        db.run("DELETE FROM Appointments WHERE appointmentID = ?", [appointmentID], err => {
+            if(err){
+                reject(err);
+            } else {
+                resolve();
+            }
+        })
+    })
+}
+
 exports.createNewAppointment = createNewAppointment;
 exports.getAllAppointmentsForSalesperson = getAllAppointmentsForSalesperson;
 exports.getAllAppointmentsForUser = getAllAppointmentsForUser;
 exports.assignAppointmentStatuses = assignAppointmentStatuses;
+exports.cancelAppointment = cancelAppointment;

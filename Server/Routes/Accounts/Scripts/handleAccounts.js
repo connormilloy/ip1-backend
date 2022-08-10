@@ -78,7 +78,7 @@ const newAccount = async (account, db) => {
             .then(hash => {
                 account['password'] = hash;
                 console.log(account);
-                db.run("INSERT INTO Users(name, email, password, accountLevel, companyName, companyCategory) VALUES(?, ?, ?, ?, ?, ?)", [account.name, account.email, account.password, account.accountLevel, account.companyName, account.companyCategory], err => {
+                db.run("INSERT INTO Users(name, email, password, accountLevel, companyName, companyCategory, loginAttempts, accountLocked) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [account.name, account.email, account.password, account.accountLevel, account.companyName, account.companyCategory, 0, "false"], err => {
                     if(err){
                         console.log(err);
                         reject(err);

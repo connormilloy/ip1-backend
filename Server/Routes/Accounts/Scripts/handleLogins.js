@@ -62,33 +62,104 @@ const getAccountFromDB = (email, db) => {
     })
 }
 
+const returnIncorrectLoginAttempts = (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        db.all("SELECT loginAttempts FROM Users WHERE userID = ?", [userID], (err, result) => {
+            if(err){
+                reject(err);
+            } else {
+                resolve(result[0]?.loginAttempts)
+            }
+        })
+    })
+}
+
+const resetIncorrectLoginAttempts = (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        db.run("UPDATE Users SET loginAttempts = 0 WHERE userID = ?", [userID], err => {
+            if(err){
+                reject(err);
+            } else {
+                resolve();
+            }
+        })
+    })
+}
+
+const lockAccount = (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        db.run("UPDATE Users SET accountLocked = 'true' WHERE userID = ?", [userID], err => {
+            if(err){
+                reject(err);
+            } else {
+                resolve();
+            }
+        })
+    })
+}
+
+const incrementIncorrectLoginAttempts = (userID, db) => {
+    return new Promise(async (resolve, reject) => {
+        returnIncorrectLoginAttempts(userID, db)
+            .then(attempts => {
+                let loginAttempts = Number(attempts);
+                loginAttempts++;
+
+                if(loginAttempts >= 3){
+                    lockAccount(userID, db)
+                        .then(() => resolve())
+                        .catch(e => reject(e))
+                }
+
+                db.run("UPDATE Users SET loginAttempts = ? WHERE userID = ?", [loginAttempts, userID], err => {
+                    if(err){
+                        reject(err);
+                    } else {
+                        resolve(loginAttempts);
+                    }
+                })
+            })
+    })
+}
+
 const validateLogin = (loginInfo, db) => {
     return new Promise(async (resolve, reject) => {
         getAccountFromDB(loginInfo?.email, db)
             .then(account => {
-                comparePasswordHashes(account.password, loginInfo.password)
+                if(account['accountLocked'] == "true"){
+                    resolve('Account Locked');
+                } else {
+                    comparePasswordHashes(account.password, loginInfo.password)
                     .then(valid => {
                         if(valid){
-                            getUserAccountLevel(account.userID, db)
-                                .then(res => {
-                                    const accountLevel = res.accountLevel;
-                                    addLoginTokenToUser(account.userID, db)
-                                        .then((token) => resolve({
-                                            "valid": true,
-                                            "token": token,
-                                            "userID": account.userID,
-                                            "accountLevel": accountLevel
-                                        }))
+                            resetIncorrectLoginAttempts(account.userID, db)
+                                .then(() => {
+                                    getUserAccountLevel(account.userID, db)
+                                        .then(res => {
+                                            const accountLevel = res.accountLevel;
+                                            addLoginTokenToUser(account.userID, db)
+                                                .then((token) => resolve({
+                                                    "valid": true,
+                                                    "token": token,
+                                                    "userID": account.userID,
+                                                    "accountLevel": accountLevel
+                                                }))
+                                            .catch(e => reject(e))
+                                        })
                                     .catch(e => reject(e))
                                 })
-                                .catch(e => reject(e))
                         } else {
-                            resolve({
-                                "valid": false
-                            });
+                            incrementIncorrectLoginAttempts(account.userID, db)
+                                .then(loginAttempts => {
+                                    resolve({
+                                        "valid": false,
+                                        "loginAttempts": loginAttempts
+                                    });
+                                })
                         }
                     })
                     .catch(e => reject(e))
+                }
             })
             .catch(e => reject('no account'))
     })
