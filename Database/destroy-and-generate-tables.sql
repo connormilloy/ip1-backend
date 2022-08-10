@@ -67,3 +67,4 @@ CREATE TABLE LoginTokens(
 );
 
 .print "Finished creating new tables with blank data..."
+.print ""

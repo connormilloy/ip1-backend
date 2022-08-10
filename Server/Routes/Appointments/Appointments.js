@@ -12,7 +12,7 @@ router.post('/create-new-appointment', [security.validateSessionToken, security.
     const appointmentData = req.body;
 
     appointments.createNewAppointment(appointmentData, db)
-        .then(() => res.send('Created new appointment.'))
+        .then(() => res.send('Appointment booked successfully!'))
         .catch(e => res.send(e))
 })
 
@@ -60,7 +60,7 @@ router.post('/cancel-appointment', [security.validateSessionToken, security.exte
 
     appointments.cancelAppointment(appointmentID, db)
         .then(() => res.send('Appointment cancelled successfully.'))
-        .catch(e => res.send('Error cancelling appointment.'))
+        .catch(e => res.send('Error cancelling appointment, please contact an administrator.'))
 })
 
 module.exports = router;

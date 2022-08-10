@@ -35,7 +35,7 @@ const getAllAppointmentsForSalesperson = (salespersonID, db) => {
     return new Promise(async (resolve, reject) => {
         const query = 
         `
-            SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment, appointmentID AS ID FROM Appointments
+            SELECT a.name AS User, b.name AS Salesperson, a.companyName AS Company, appointmentDateTime AS Appointment, appointmentID AS ID FROM Appointments
             INNER JOIN Users a on a.userID = Appointments.userID
             INNER JOIN Users b on b.userID = Appointments.salespersonID
             WHERE Appointments.salespersonID = ?
@@ -55,7 +55,7 @@ const getAllAppointmentsForUser = (userID, db) => {
     return new Promise(async (resolve, reject) => {
         const query = 
         `
-            SELECT a.name AS User, b.name AS Salesperson, appointmentDateTime AS Appointment, appointmentID AS ID FROM Appointments
+            SELECT a.name AS User, b.name AS Salesperson, a.companyName AS Company, appointmentDateTime AS Appointment, appointmentID AS ID FROM Appointments
             INNER JOIN Users a on a.userID = Appointments.userID
             INNER JOIN Users b on b.userID = Appointments.salespersonID
             WHERE Appointments.userID = ?
