@@ -11,6 +11,8 @@ router.post('/create-new-appointment', [security.validateSessionToken, security.
     const db = req.app.get('db');
     const appointmentData = req.body;
 
+    console.log(appointmentData)
+
     appointments.createNewAppointment(appointmentData, db)
         .then(() => res.send('Created new appointment.'))
         .catch(e => res.send(e))
@@ -29,11 +31,17 @@ router.get('/get-appointments/:userID', security.validateSessionToken, (req, res
         .then(account => {
             if(account?.accountLevel === 1){
                 appointments.getAllAppointmentsForUser(req.params.userID, db)
-                    .then(response => res.send(response))
+                    .then(response => {
+                        appointments.assignAppointmentStatuses(response)
+                            .then(response => { res.send(response) });
+                    })
                     .catch(e => res.send(e))
             } else if(account?.accountLevel === 2){
                 appointments.getAllAppointmentsForSalesperson(req.params.userID, db)
-                    .then(response => res.send(response))
+                    .then(response => {
+                        appointments.assignAppointmentStatuses(response)
+                            .then(response => { res.send(response) });
+                    })
                     .catch(e => res.send(e))
             } else {
                 res.send([]);

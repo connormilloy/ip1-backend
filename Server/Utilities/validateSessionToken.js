@@ -10,7 +10,7 @@ const getUserID = (email, db) => {
             if(err){
                 reject();
             } else {
-                resolve(result[0].userID)
+                resolve(result[0]?.userID)
             }
         })
     })
@@ -39,7 +39,7 @@ const validateSessionToken = (email, token, db) => {
         .then(userID => {
             getSessionToken(userID, db)
                 .then(sessionInfo => {
-                    if(token === sessionInfo.token && checkTokenExpiry(sessionInfo.tokenExpiryDateTime)){
+                    if(token === sessionInfo?.token && checkTokenExpiry(sessionInfo?.tokenExpiryDateTime)){
                         resolve(true)
                     } else {
                         resolve(false);
