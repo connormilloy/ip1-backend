@@ -10,6 +10,7 @@ const assignAppointmentStatuses = appointments => {
             if(time-now < 1) hasPassed = true;
 
             appointment['hasPassed'] = hasPassed;
+            appointment['Appointment'] = moment(appointment.Appointment, "DD-MM-YYYY HH:mm:ss").tz('Europe/London');
         }
 
         resolve(appointments);
