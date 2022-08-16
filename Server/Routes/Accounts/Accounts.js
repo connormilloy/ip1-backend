@@ -7,14 +7,12 @@ const { validateSessionToken } = require('../../Utilities/validateSessionToken')
 const accounts = require('./Scripts/handleAccounts');
 const logins = require('./Scripts/handleLogins');
 
-// Create a new POST endpoint with the path 'new-account'
+// Create a new account
 router.post('/new-account', (req, res) => {
     const db = req.app.get('db');
 
-    // Define data as req.body for readability
     const data = req.body;
 
-    // Generate an account object using the data sent in the request
     const account = {
         "name": data?.name,
         "companyName": data?.companyName,
@@ -25,12 +23,14 @@ router.post('/new-account', (req, res) => {
     }
 
     // Pass the data to the new account function to be handled
-    // Return a HTTP status depending on whether or not the request was handled successfully
     accounts.newAccount(account, db)
         .then(() => res.send({"success": true, message: "Successfully created account! You may now log in."}))
         .catch(e => res.send({"success": false, message: "Failed to create account. This email address may already be in use."}))
 })
 
+// Set an account as a salesperson 
+// There is no point of entry for this endpoint on the frontend
+// It must be done using cURL or Postman using the API key environment variable
 router.post('/set-account-as-salesperson', [security.validateAdmin], (req, res) => {
     const db = req.app.get('db');
     const salespersonData = req.body;
@@ -40,6 +40,7 @@ router.post('/set-account-as-salesperson', [security.validateAdmin], (req, res) 
         .catch(e => res.send(e))
 })
 
+// Handle a new login
 router.post('/login', (req, res) => {
     const db = req.app.get('db');
     const loginInfo = req.body;
@@ -59,6 +60,8 @@ router.post('/login', (req, res) => {
         })
 })
 
+// Validate a user's session
+// Replaced by the security.validateSessionToken middleware but remains as a proof of concept
 router.post('/validate-session', (req, res) => {
     const db = req.app.get('db');
     const sessionInfo = req.body;
@@ -68,6 +71,7 @@ router.post('/validate-session', (req, res) => {
         .catch(e => console.log(e))
 })
 
+// Find an account's company category by user ID
 router.get('/get-user-category/:userID', [security.validateSessionToken, security.extendToken], (req, res) => {
     const db = req.app.get('db');
     

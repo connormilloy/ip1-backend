@@ -1,3 +1,4 @@
+// Return all salespeople from the 'Salespeople' table that match a specific category
 const getSalespeopleBySpecialty = (specialty, db) => {
     return new Promise(async (resolve, reject) => {
         db.all(`

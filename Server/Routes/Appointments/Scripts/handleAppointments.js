@@ -1,23 +1,33 @@
 const moment = require('moment-timezone');
 
+// Assign 'Completed/Upcoming' statuses to a block of appointments
 const assignAppointmentStatuses = appointments => {
     return new Promise(async (resolve, reject) => {
+        // Define right now as a unix time
         const now = moment().tz('Europe/London').unix();
 
         for(appointment of appointments){
+            // Convert the appointment's time to unix time, we will be comparing this to our 'now' variable
             const time = moment(appointment.Appointment, "DD-MM-YYYY HH:mm:ss").tz('Europe/London').unix();
             let hasPassed = false;
+
+            // If the difference in unix time between the appointment time and now is < 1ms, we know the appointment has passed
             if(time-now < 1) hasPassed = true;
 
+            // Add a hasPassed key to the appointment with the correct value
             appointment['hasPassed'] = hasPassed;
+            // Convert the appointment's date/time to UK format for handling on the frontend
             appointment['Appointment'] = moment(appointment.Appointment, "DD-MM-YYYY HH:mm:ss").tz('Europe/London');
         }
 
         resolve(appointments);
     })
 }
+
+// Create a new appointment in the Appointments table
 const createNewAppointment = (appointmentData, db) => {
     return new Promise(async (resolve, reject) => {
+        // Format the appointment date/time to use DD-MM-YYYY and mutate the appointmentData object to set it
         const formattedTime = moment(appointmentData.appointmentDateTime).tz('Europe/London').format("DD-MM-YYYY HH:mm:ss");
         appointmentData.appointmentDateTime = formattedTime;
 
@@ -32,6 +42,7 @@ const createNewAppointment = (appointmentData, db) => {
     })
 }
 
+// Get all appointments corresponding to a salespersonID from the Appointments table
 const getAllAppointmentsForSalesperson = (salespersonID, db) => {
     return new Promise(async (resolve, reject) => {
         const query = 
@@ -52,6 +63,7 @@ const getAllAppointmentsForSalesperson = (salespersonID, db) => {
     })
 }
 
+// Get all appointments corresponding to a userID from the Appointments table
 const getAllAppointmentsForUser = (userID, db) => {
     return new Promise(async (resolve, reject) => {
         const query = 
@@ -72,6 +84,7 @@ const getAllAppointmentsForUser = (userID, db) => {
     })
 }
 
+// Delete an appointment from the Appointments table, by appointmentID
 const cancelAppointment = (appointmentID, db) => {
     return new Promise(async (resolve, reject) => {
         db.run("DELETE FROM Appointments WHERE appointmentID = ?", [appointmentID], err => {

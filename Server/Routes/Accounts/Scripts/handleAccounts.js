@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 
+// Find and return the userID of an account from the 'Users' table using an email address
 const getUserID = (email, db) => {
     return new Promise(async (resolve, reject) => {
         db.all('SELECT userID FROM Users WHERE email = ?', [email], (err, result) => {
@@ -13,6 +14,7 @@ const getUserID = (email, db) => {
     })
 }
 
+// Insert a new salesperson into the 'Salespeople' table
 const addSalesperson = (userID, specialty, db) => {
     return new Promise(async (resolve, reject) => {
         db.run('INSERT INTO Salespeople(salespersonID, specialtyCompanyCategory) VALUES(?, ?)', [userID, specialty], err => {
@@ -26,6 +28,8 @@ const addSalesperson = (userID, specialty, db) => {
     })
 }
 
+// Convert a user account to a salesperson account
+// The user will be updated in the 'Users' table to have an accountLevel of 2, then addSalesperson() will be called
 const convertUserAccountToSalesperson = (data, db) => {
     return new Promise(async (resolve, reject) => {
         getUserID(data.email, db)
@@ -53,7 +57,6 @@ const saltAndHashPassword = plaintextPassword => {
         // Call the genSalt function to generate a new salted string
         bcrypt.genSalt(saltRounds, (err, salt) => {
             if(err){
-                // Throw any errors back to a .catch() statement in the parent function
                 reject(err);
             } else {
                 // Hash the plaintext password after adding the salted string
@@ -72,12 +75,16 @@ const saltAndHashPassword = plaintextPassword => {
     })
 }
 
+// Insert a new account into the 'Users' table
 const newAccount = async (account, db) => {
     return new Promise(async (resolve, reject) => {
+        // Generate a new salted and hashed password from the password field on the registration form
         const saltedPassword = saltAndHashPassword(account.password)
             .then(hash => {
+                // Mutate the account object, set the password key to the newly generated hash
                 account['password'] = hash;
-                console.log(account);
+
+                // Insert the data into the Users table
                 db.run("INSERT INTO Users(name, email, password, accountLevel, companyName, companyCategory, loginAttempts, accountLocked) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [account.name, account.email, account.password, account.accountLevel, account.companyName, account.companyCategory, 0, "false"], err => {
                     if(err){
                         console.log(err);
@@ -91,6 +98,7 @@ const newAccount = async (account, db) => {
     })
 }
 
+// Find and return the account level of a user by ID
 const getUserAccountLevel = async (userID, db) => {
     return new Promise(async (resolve, reject) => {
         db.all("SELECT accountLevel FROM Users WHERE userID = ?", [userID], (err, result) => {
@@ -104,6 +112,7 @@ const getUserAccountLevel = async (userID, db) => {
     })
 }
 
+// Find and return a user's company category by their ID
 const getUserAccountCategory = (userID, db) => {
     return new Promise(async (resolve, reject) => {
         db.all("SELECT companyCategory FROM Users WHERE userID = ?", [userID], (err, result) => {
