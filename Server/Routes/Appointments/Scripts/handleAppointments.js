@@ -7,6 +7,7 @@ const assignAppointmentStatuses = appointments => {
         const now = moment().tz('Europe/London').unix();
 
         for(appointment of appointments){
+            console.log(appointment);
             // Convert the appointment's time to unix time, we will be comparing this to our 'now' variable
             const time = moment(appointment.Appointment, "DD-MM-YYYY HH:mm:ss").tz('Europe/London').unix();
             let hasPassed = false;
@@ -16,8 +17,7 @@ const assignAppointmentStatuses = appointments => {
 
             // Add a hasPassed key to the appointment with the correct value
             appointment['hasPassed'] = hasPassed;
-            // Convert the appointment's date/time to UK format for handling on the frontend
-            appointment['Appointment'] = moment(appointment.Appointment, "DD-MM-YYYY HH:mm:ss").tz('Europe/London');
+            appointment['Appointment'] = moment(appointment.Appointment, "DD-MM-YYYY HH:mm:ss");
         }
 
         resolve(appointments);
